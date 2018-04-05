@@ -28,7 +28,7 @@ market_cap: Market cap of the stock. i.e. dollar amount currently vested in stoc
 setup(
   name = 'nasdaq_stock',
   packages = ['nasdaq_stock'],
-  version = '0.0.1',
+  version = '0.0.2',
   description = 'nasdaq stock retriever',
   long_description = long_description_text
   author = 'George Shen',
