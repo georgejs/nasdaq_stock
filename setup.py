@@ -30,7 +30,7 @@ setup(
   packages = ['nasdaq_stock'],
   version = '0.0.2',
   description = 'nasdaq stock retriever',
-  long_description = long_description_text
+  long_description = long_description_text,
   author = 'George Shen',
   author_email = 'georgejs.arch@gmail.com',
   url = 'https://github.com/georgejs/nasdaq_stock',
