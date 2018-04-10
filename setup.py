@@ -28,13 +28,13 @@ market_cap: Market cap of the stock. i.e. dollar amount currently vested in stoc
 setup(
   name = 'nasdaq_stock',
   packages = ['nasdaq_stock'],
-  version = '0.0.2',
+  version = '0.0.3',
   description = 'nasdaq stock retriever',
   long_description = long_description_text,
   author = 'George Shen',
   author_email = 'georgejs.arch@gmail.com',
   url = 'https://github.com/georgejs/nasdaq_stock',
-  download_url = 'https://github.com/georgejs/nasdaq_stock/archive/0.0.2.tar.gz',
+  download_url = 'https://github.com/georgejs/nasdaq_stock/archive/0.0.3.tar.gz',
   keywords = ['stock', 'nasdaq', 'stock retriever', 'nasdaq stock'],
   classifiers = [],
 )

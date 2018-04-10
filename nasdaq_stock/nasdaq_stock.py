@@ -1,3 +1,11 @@
+'''
+Nasdaq Stock
+Stock data extractory
+
+To Use:
+ticker = 'xxx'
+stock_data = nasdaq_stock.stock(ticker)
+'''
 import requests
 from lxml import html
 import datetime
@@ -10,6 +18,12 @@ previousclose = '//*[@id="left-column-div"]/div[1]/div[1]/div/div[5]/div[2]/text
 marketcap = '//*[@id="left-column-div"]/div[1]/div[2]/div/div[1]/div[2]/text()'
 
 def stock(ticker):
+    '''
+    Retrieves stock ticker informantion.
+
+    :param ticker: Valid nasdaq stock ticker.
+    :return: Dictionary of stock information.
+    '''
     url = 'https://www.nasdaq.com/symbol/{ticker}'.format(ticker=ticker)
     html_data = requests.get(url)
     NAS = False
