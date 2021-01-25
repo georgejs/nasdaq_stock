@@ -1,109 +1,130 @@
 '''
 Nasdaq Stock
 Stock data extractory
-
 To Use:
 ticker = 'xxx'
 stock_data = nasdaq_stock.stock(ticker)
 '''
 import requests
 from lxml import html
+from lxml import etree
 import datetime
 
 
-bidask = '//*[@id="left-column-div"]/div[1]/div[1]/div/div[1]/div[2]/text()'
-highlow = '//*[@id="left-column-div"]/div[1]/div[1]/div/div[2]/div[2]/text()'
-vol = '//*[@id="left-column-div"]/div[1]/div[1]/div/div[3]/div[2]/text()'
-previousclose = '//*[@id="left-column-div"]/div[1]/div[1]/div/div[5]/div[2]/text()'
-marketcap = '//*[@id="left-column-div"]/div[1]/div[2]/div/div[1]/div[2]/text()'
+price_xp = '/html/body/div[1]/div/div/div[1]/div/div[2]/div/div/div[4]/div/div/div/div[3]/div[1]/div/span[1]/text()'
+range_xp = '/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[5]/td[2]/text()'
+vol_xp = '/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[7]/td[2]/span/text()'
+vol_avg_xp = '/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[8]/td[2]/span/text()'
+previousclose_xp = '/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[1]/td[2]/span/text()'
+marketcap_xp = '//*[@id="left-column-div"]/div[1]/div[2]/div/div[1]/div[2]/text()'
 
 def stock(ticker):
     '''
     Retrieves stock ticker informantion.
-
     :param ticker: Valid nasdaq stock ticker.
     :return: Dictionary of stock information.
     '''
-    url = 'https://www.nasdaq.com/symbol/{ticker}'.format(ticker=ticker)
-    html_data = requests.get(url)
+    ticker = ticker.upper()
+    
+    url = "https://finance.yahoo.com/quote/{ticker}?p={ticker}&.tsrc=fin-srch".format(ticker=ticker)
+    
+    headers = {
+        'upgrade-insecure-requests': "1",
+        'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36",
+        'accept': "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        'cache-control': "no-cache"
+    }
+    
+    response = requests.request("GET", url, headers=headers)
+    today = datetime.date.today().strftime('%B %d %Y')
+    time = datetime.datetime.now().strftime('%H:%M:%S')
+    
     NAS = False
-    if html_data.status_code == 200:
-        data = html.fromstring(html_data.content)
+    if response.status_code == 200:    
+        data = html.fromstring(response.content)
+        #print(type(data))#Debug
         try:
-            check = data.xpath('//*[@id="left-column-div"]/div[1]/text()')
-            for item in check:
-                if item.find('This is an unknown symbol.')>0:
-                    NAS = True
-                    print('{tic} is not a vaild stock'.format(tic=ticker))
-                    return (False)
+            check = data.xpath('//*[@id="quote-header-info"]/div[2]/div[1]/div[1]/h1/text()')
+            if len(check) > 0:
+                NAS = False
+            else:
+                return (False)
         except:
             return (False)
-        if NAS == False:
-            try:
-                Stock = ticker.upper()
-                today = datetime.date.today().strftime('%B %d %Y')
-                time = datetime.datetime.now().strftime('%H:%M:%S')
-                rd_bid_ask = data.xpath(bidask)
-                rd_high_low = data.xpath(highlow)
-                rd_vol = data.xpath(vol)
-                rd_previous_close = data.xpath(previousclose)
-                rd_market_cap = data.xpath(marketcap)
+        
+        try:
+            Stock = ticker.upper()
+            today = datetime.date.today().strftime('%B %d %Y')
+            time = datetime.datetime.now().strftime('%H:%M:%S')
+            
+            rd_bid_ask = data.xpath(price_xp)
+            rd_high_low = data.xpath(range_xp)
+            rd_vol = data.xpath(vol_xp)
+            rd_vol_avg = data.xpath(vol_avg_xp)
+            rd_previous_close = data.xpath(previousclose_xp)
+            
+            price = rd_bid_ask[0].strip()
+            ask = rd_bid_ask[0].strip()
+            volume = rd_vol[0].strip().strip().replace(',','')
+            previous_close = rd_previous_close[0].strip()
 
-                data_bid_ask = rd_bid_ask[0].strip()
-                data_high_low = rd_high_low[0].strip()
-                data_vol = rd_vol[0].strip()
-                data_previous_close = rd_previous_close[0].strip()
-                data_market_cap = rd_market_cap[0].strip()
-
-                volume = data_vol.replace(',', '')
-                previous_close = data_previous_close[2:]
-                market_cap = data_market_cap.replace(',', '')
-
-                if data_bid_ask.find('N/A')>=0:
-                    bid = previous_close
-                    ask = 'None'
-                elif data_bid_ask.find('$')>=0:
-                    data_array = data_bid_ask.split('/')
-                    bid = data_array[0][2:]
-                    ask = data_array[1][3:]
-                else:
-                    bid = 'None'
-                    ask = 'None'
-
-                if data_high_low.find('$')==-1:
-                    high = 'None'
-                    low = 'None'
-                elif data_high_low.find('$')>=0:
-                    data_array = data_high_low.split('/')
-                    high = data_array[0][2:]
-                    low = data_array[1][3:]
-                else:
-                    high = 'None'
-                    low = 'None'
-
-                print('***** '+Stock+' *****')
-                print('Date: '+today)
-                print('Time: '+time)
-                print('Price: '+bid)
-                print('Ask: '+ask)
-                print('High: '+high)
-                print('Low: '+low)
-                print('Previous Close: ' + previous_close)
-                print('Volume: '+volume)
-                print('Market Cap: '+market_cap)
-
-                s_dict = dict(ticker=Stock,date=today,time=time,price=bid,ask=ask,high=high,low=low,previous_close=previous_close,volume=volume,market_cap=market_cap)
-                return s_dict
-            except:
-                return (False)
-
+        except:
+            return (False)
+        try:
+            high_low = rd_high_low[0].split(' - ')
+        except:
+            high_low = ['0.0','0.0']
+        
+        try:
+            high = [float(high_low[1].strip().replace(',',''))]
+            low = [float(high_low[0].strip().replace(',',''))]
+        except:
+            high = ['0.0']
+            low = ['0.0']
+        
+        stock_dic = {'ticker':str(Stock), \
+                'date':today, \
+                'time':time, \
+                'price':str(price), \
+                'ask':str(ask), \
+                'range_val':str(rd_high_low[0]), \
+                'vol':str(volume), \
+                'vol_avg':str(rd_vol_avg[0].replace(',','')), \
+                'previous_close':str(previous_close), \
+                'high':str(high[0]), \
+                'low':str(low[0])}
+        
+        print(stock_dic)
+        
     else:
-        print('Connection Not Found')
-        return (False)
-
+        stock_dic = {'ticker': 'Not-Available', \
+                     'date': today, \
+                     'time': time, \
+                     'price': 'Not-Available', \
+                     'ask': 'Not-Available', \
+                     'range_val': str('Not-Available'), \
+                     'vol': 'Not-Available', \
+                     'vol_avg': str('Not-Available'), \
+                     'previous_close': str('Not-Available'), \
+                     'high': str('Not-Available'), \
+                     'low': str('Not-Available')}
+    return stock_dic
+    
+def print_stock(dic_stock):
+    print('Price          :'+dic_stock.get('price'))
+    print('Range          :'+dic_stock.get('range_val'))
+    print('Volume         :'+dic_stock.get('vol'))
+    print('Avg Volume     :'+dic_stock.get('vol_avg'))
+    print('Previous Close :'+dic_stock.get('previous_close'))
+    print('High           :'+dic_stock.get('high'))
+    print('Low            :'+dic_stock.get('low'))
+    
 def main():
-    ticker = input('Input Ticker: ')
-    ticker_obj = stock(ticker)
+    ticker = input('Ticker: ')
+    report = stock(ticker)
+    print(report.keys())
+    print_stock(report)
 
+    
 if __name__ == '__main__':
     main()
