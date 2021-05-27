@@ -1,0 +1,10 @@
+LICENSE
+README.md
+setup.cfg
+setup.py
+nasdaq_stock/__init__.py
+nasdaq_stock/nasdaq_stock.py
+nasdaq_stock.egg-info/PKG-INFO
+nasdaq_stock.egg-info/SOURCES.txt
+nasdaq_stock.egg-info/dependency_links.txt
+nasdaq_stock.egg-info/top_level.txt
