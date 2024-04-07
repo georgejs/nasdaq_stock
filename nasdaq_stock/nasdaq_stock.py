@@ -1,6 +1,6 @@
 '''
 Nasdaq Stock
-Stock data extractory
+Stock data extraction
 To Use:
 ticker = 'xxx'
 stock_data = nasdaq_stock.stock(ticker)
@@ -11,12 +11,17 @@ from lxml import etree
 import datetime
 
 
-price_xp = '/html/body/div[1]/div/div/div[1]/div/div[2]/div/div/div[5]/div/div/div/div[3]/div[1]/div/span[1]/text()'
-range_xp = '/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[5]/td[2]/text()'
-vol_xp = '/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[7]/td[2]/span/text()'
-vol_avg_xp = '/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[8]/td[2]/span/text()'
-previousclose_xp = '/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[1]/td[2]/span/text()'
-marketcap_xp = '//*[@id="left-column-div"]/div[1]/div[2]/div/div[1]/div[2]/text()'
+#price_xp = '/html/body/div[1]/div/div/div[1]/div/div[2]/div/div/div[5]/div/div/div/div[3]/div[1]/div/span[1]/text()' # Legacy as of 19 FEB 2024
+price_xp = '/html/body/div[1]/main/section/section/section/article/section[1]/div[2]/div[1]/section/div/section[1]/div[1]/fin-streamer[1]/span/text()'
+#range_xp = '/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[5]/td[2]/text()' # Legacy as of 19 FEB 2024
+range_xp = '/html/body/div[1]/main/section/section/section/article/div[2]/ul/li[5]/span[2]/fin-streamer/text()'
+#vol_xp = '/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[7]/td[2]/span/text()'# Legacy as of 19 FEB 2024
+vol_xp = '/html/body/div[1]/main/section/section/section/article/div[2]/ul/li[7]/span[2]/fin-streamer/text()'
+#vol_avg_xp = '/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[8]/td[2]/span/text()'# Legacy as of 19 FEB 2024
+vol_avg_xp = '/html/body/div[1]/main/section/section/section/article/div[2]/ul/li[1]/span[2]/fin-streamer/text()'
+#previousclose_xp = '/html/body/div[1]/div/div/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[2]/div[1]/table/tbody/tr[1]/td[2]/span/text()'# Legacy as of 19 FEB 2024
+previousclose_xp = '/html/body/div[1]/main/section/section/section/article/div[2]/ul/li[1]/span[2]/fin-streamer/text()'
+#marketcap_xp = '//*[@id="left-column-div"]/div[1]/div[2]/div/div[1]/div[2]/text()' #Legacy as of 19 FEB 2024
 
 def stock(ticker):
     '''
@@ -42,9 +47,10 @@ def stock(ticker):
     NAS = False
     if response.status_code == 200:    
         data = html.fromstring(response.content)
-        #print(type(data))#Debug
+        print(type(data))#Debug
         try:
-            check = data.xpath('//*[@id="quote-header-info"]/div[2]/div[1]/div[1]/h1/text()')
+            # check = data.xpath('//*[@id="quote-header-info"]/div[2]/div[1]/div[1]/h1/text()') # Legacy
+            check = data.xpath('//*[@id="nimbus-app"]/section/section/section/article/section[1]/div[1]/div/section/h1/text()')
             if len(check) > 0:
                 NAS = False
             else:
